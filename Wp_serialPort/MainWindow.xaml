@@ -1,0 +1,361 @@
+<Window x:Class="Wp_serialPort.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Serial Port V3" Height="820" Width="1320" MinHeight="680" MinWidth="1040"
+        WindowStartupLocation="CenterScreen" Background="#F0F0F0" Foreground="#1A1A1A"
+        FontFamily="Segoe UI" UseLayoutRounding="True">
+    <Window.Resources>
+        <SolidColorBrush x:Key="Panel" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="Panel2" Color="#F0F0F0"/>
+        <SolidColorBrush x:Key="Muted" Color="#666666"/>
+        <SolidColorBrush x:Key="Accent" Color="#0078D7"/>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#1A1A1A"/>
+        </Style>
+        <Style x:Key="ComboOption" TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="#000000"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="#D6EAF8"/>
+                    <Setter Property="Foreground" Value="#000000"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#B8DDF5"/>
+                    <Setter Property="Foreground" Value="#000000"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#777777"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="Field" TargetType="ComboBox">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Foreground" Value="#000000"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#A0A0A0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,7,0,0"/>
+            <Setter Property="ItemContainerStyle" Value="{StaticResource ComboOption}"/>
+        </Style>
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Foreground" Value="#000000"/>
+            <Setter Property="Background" Value="#E1E1E1"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="9" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="QuietButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#E1E1E1"/>
+        </Style>
+        <Style x:Key="Check" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="Margin" Value="0,10,16,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="26">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="0,0,0,22">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <Border Width="42" Height="42" CornerRadius="12" Background="#D9EAF7" Margin="0,0,13,0">
+                    <TextBlock Text="⌁" FontSize="27" Foreground="#0078D7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="SERIAL PORT V3" FontSize="19" FontWeight="Bold"/>
+                    <TextBlock Text="SERİ PORT BAĞLANTI ARACI" FontSize="10" Foreground="{StaticResource Muted}" Margin="0,2,0,0"/>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button x:Name="SettingsToggleButton" Content="Ayarları gizle ◀" Style="{StaticResource QuietButton}" Padding="12,8" Margin="0,0,8,0" Click="ToggleSettings_Click"/>
+                <Button x:Name="CommandsToggleButton" Content="Komutları gizle ▶" Style="{StaticResource QuietButton}" Padding="12,8" Margin="0,0,12,0" Click="ToggleCommands_Click"/>
+                <Border Background="#FFFFFF" CornerRadius="20" Padding="13,8">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="#808080" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="ConnectionStatus" Text="BAĞLANTI YOK" FontSize="10" FontWeight="Bold" Foreground="#555555"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="SettingsColumn" Width="310"/>
+                <ColumnDefinition x:Name="SettingsGapColumn" Width="20"/>
+                <ColumnDefinition/>
+                <ColumnDefinition x:Name="CommandsGapColumn" Width="7.333"/>
+                <ColumnDefinition x:Name="CommandsColumn" Width="342.667"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Background="{StaticResource Panel}" CornerRadius="16" Padding="22">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="BAĞLANTI AYARLARI" FontSize="11" FontWeight="Bold" Foreground="#555555"/>
+                        <TextBlock Text="Port parametreleri" FontSize="20" FontWeight="SemiBold" Margin="0,5,0,20"/>
+                        <TextBlock Text="Seri port" FontSize="12" Foreground="{StaticResource Muted}"/>
+                        <Grid Margin="0,7,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="42"/>
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="PortCombo" Style="{StaticResource Field}" Margin="0"/>
+                            <Button Grid.Column="1" Content="⟳" Style="{StaticResource QuietButton}" Padding="0" Margin="7,0,0,0" Click="RefreshPorts_Click" ToolTip="Portları yenile"/>
+                        </Grid>
+                        <TextBlock Text="Baud hızı" FontSize="12" Foreground="{StaticResource Muted}" Margin="0,17,0,0"/>
+                        <ComboBox x:Name="BaudCombo" Style="{StaticResource Field}" SelectedIndex="3">
+                            <ComboBoxItem Content="1200"/>
+                            <ComboBoxItem Content="2400"/>
+                            <ComboBoxItem Content="4800"/>
+                            <ComboBoxItem Content="9600"/>
+                            <ComboBoxItem Content="19200"/>
+                            <ComboBoxItem Content="115200"/>
+                            <ComboBoxItem Content="230400"/>
+                            <ComboBoxItem Content="460800"/>
+                            <ComboBoxItem Content="921600"/>
+                        </ComboBox>
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Veri biti" FontSize="12" Foreground="{StaticResource Muted}"/>
+                                <ComboBox x:Name="DataBitsCombo" Style="{StaticResource Field}" SelectedIndex="3">
+                                    <ComboBoxItem Content="5"/>
+                                    <ComboBoxItem Content="6"/>
+                                    <ComboBoxItem Content="7"/>
+                                    <ComboBoxItem Content="8"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Dur biti" FontSize="12" Foreground="{StaticResource Muted}"/>
+                                <ComboBox x:Name="StopBitsCombo" Style="{StaticResource Field}" SelectedIndex="0">
+                                    <ComboBoxItem Content="1"/>
+                                    <ComboBoxItem Content="2"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Eşlik" FontSize="12" Foreground="{StaticResource Muted}" Margin="0,15,0,0"/>
+                        <ComboBox x:Name="ParityCombo" Style="{StaticResource Field}" SelectedIndex="0">
+                            <ComboBoxItem Content="Yok"/>
+                            <ComboBoxItem Content="Çift"/>
+                            <ComboBoxItem Content="Tek"/>
+                        </ComboBox>
+                        <Button x:Name="ConnectButton" Content="Bağlan" Style="{StaticResource ActionButton}" Height="46" Margin="0,23,0,0" Click="Connect_Click"/>
+                        <Border Height="1" Background="#D0D0D0" Margin="0,23,0,17"/>
+                        <TextBlock Text="OTURUM BİLGİSİ" FontSize="10" FontWeight="Bold" Foreground="#555555"/>
+                        <Grid Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Durum" Foreground="{StaticResource Muted}" FontSize="12"/>
+                            <TextBlock x:Name="SessionState" Grid.Column="1" Text="Bekliyor" FontSize="12"/>
+                        </Grid>
+                        <Grid Margin="0,11,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Alınan veri" Foreground="{StaticResource Muted}" FontSize="12"/>
+                            <TextBlock x:Name="ReceivedCount" Grid.Column="1" Text="0 B" FontSize="12"/>
+                        </Grid>
+                        <Border Height="1" Background="#D0D0D0" Margin="0,20,0,15"/>
+                        <TextBlock Text="MONİTÖR SATIR SONU" FontSize="10" FontWeight="Bold" Foreground="#555555"/>
+                        <TextBlock Text="Enter ile gönderilecek karakter" FontSize="12" Foreground="{StaticResource Muted}" Margin="0,10,0,0"/>
+                        <ComboBox x:Name="EndLineCombo" Style="{StaticResource Field}" SelectedValuePath="Tag" SelectedIndex="0">
+                            <ComboBoxItem Content="CR/LF — \r\n (CR + LF)" Tag="CRLF"/>
+                            <ComboBoxItem Content="LF — \n (Line Feed)" Tag="LF"/>
+                            <ComboBoxItem Content="CR — \r (Carriage Return)" Tag="CR"/>
+                            <ComboBoxItem Content="NULL — boş, karakter gönderme" Tag="NULL"/>
+                        </ComboBox>
+                        <TextBlock x:Name="DetectedEndLineStatus" Text="Satır sonu algılanmadı" FontSize="10" Foreground="#555555" Margin="2,5,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+            <Border Grid.Column="2" Background="{StaticResource Panel}" CornerRadius="16" Padding="22">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Margin="0,0,0,17">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Seri monitör · Terminal" FontSize="20" FontWeight="SemiBold"/>
+                            <TextBlock Text="Yazdığınız karakterler anında gönderilir · Enter seçili satır sonunu gönderir." FontSize="12" Foreground="{StaticResource Muted}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <WrapPanel Grid.Column="1" VerticalAlignment="Center">
+                            <CheckBox x:Name="TimestampCheck" Content="Zaman damgası" IsChecked="True" Style="{StaticResource Check}"/>
+                            <CheckBox x:Name="AutoScrollCheck" Content="Otomatik kaydır" IsChecked="True" Style="{StaticResource Check}"/>
+                            <Button Content="Temizle" Style="{StaticResource QuietButton}" Click="Clear_Click"/>
+                        </WrapPanel>
+                    </Grid>
+                    <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#B8B8B8" BorderThickness="1" CornerRadius="12">
+                        <TextBox x:Name="LogBox" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderThickness="0" Foreground="#1A1A1A" CaretBrush="#1A1A1A" FontFamily="Cascadia Code, Consolas" FontSize="13" Padding="16" KeyDown="LogBox_KeyDown" PreviewKeyDown="LogBox_PreviewKeyDown" PreviewTextInput="LogBox_PreviewTextInput"/>
+                    </Border>
+                </Grid>
+            </Border>
+            <Border x:Name="CommandsPanel" Grid.Column="4" Background="White" BorderBrush="#D0D0D0" BorderThickness="1" CornerRadius="16" Padding="14" Margin="1,0,0,0">
+                <TabControl x:Name="SidebarTabs">
+                    <TabItem Header="TXT Dosyaları">
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Komut dosyalarını seçin veya sürükleyip bırakın." TextWrapping="Wrap" Foreground="#555555" Margin="0,4,0,12"/>
+                            <ListBox x:Name="CommandFilesList" Grid.Row="1" SelectionChanged="CommandFilesList_SelectionChanged" AllowDrop="True" DragOver="CommandFilesList_DragOver" Drop="CommandFilesList_Drop" ToolTip="Kayıtlı TXT komut dosyaları"/>
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                                <Button Content="Yenile" Style="{StaticResource QuietButton}" Padding="12,7" Margin="0,0,8,0" Click="ReloadCommandFile_Click"/>
+                                <Button Content="TXT aç" Style="{StaticResource ActionButton}" Padding="14,7" Click="OpenCommandFile_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Hazır Komutlar">
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Göndermek için komuta çift tıklayın." TextWrapping="Wrap" Foreground="#555555" Margin="0,4,0,12"/>
+                            <ListBox x:Name="CommandList" Grid.Row="1" MouseDoubleClick="CommandList_MouseDoubleClick" PreviewMouseRightButtonDown="CommandList_PreviewMouseRightButtonDown" ToolTip="TXT dosyasındaki komutlar">
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Seçili satırdan sona kadar gönder" Click="SendFromSelectedRow_Click"/>
+                                        <MenuItem Header="Tüm komutları gönder (ilk 3 satırı atla)" Click="SendAllCommands_Click"/>
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
+                            </ListBox>
+                            <Button Grid.Row="2" Content="Seçili komutu gönder" Style="{StaticResource ActionButton}" HorizontalAlignment="Stretch" Margin="0,12,0,0" Click="SendSelectedCommand_Click"/>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Akıllı Öneriler">
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Margin="0,4,0,10">
+                                <TextBlock Text="Yerel komut asistanı" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="CommandSuggestionContext" Text="Cihaz türü belirleniyor" FontSize="11" Foreground="#555555" Margin="0,4,0,0"/>
+                            </StackPanel>
+                            <ListBox x:Name="CommandSuggestionsList" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ToolTip="Cihaz türüne ve yerel geri bildirime göre sıralanan komutlar">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Display}" TextWrapping="Wrap" Margin="3,2"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <TextBlock x:Name="CommandSuggestionStatus" Grid.Row="2" Text="Öneriler mevcut TXT komutlarından oluşturulur." TextWrapping="Wrap" FontSize="10" Foreground="#555555" Margin="0,8,0,5"/>
+                            <StackPanel Grid.Row="3">
+                                <Button Content="Seçili öneriyi gönder" Style="{StaticResource ActionButton}" HorizontalAlignment="Stretch" Margin="0,4,0,5" Click="SendSuggestedCommand_Click"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Yararlı" Tag="helpful" Style="{StaticResource QuietButton}" Padding="9,6" Margin="0,0,6,0" Click="CommandSuggestionFeedback_Click"/>
+                                    <Button Content="Yararsız" Tag="not-helpful" Style="{StaticResource QuietButton}" Padding="9,6" Click="CommandSuggestionFeedback_Click"/>
+                                </StackPanel>
+                                <Button Content="Öğrenme verisini sıfırla" Style="{StaticResource QuietButton}" HorizontalAlignment="Stretch" Margin="0,7,0,0" Click="ResetCommandLearning_Click" ToolTip="Kaydedilen gönderim geçmişi ve geri bildirimler silinir"/>
+                            </StackPanel>
+                        </Grid>
+                    </TabItem>
+                    <TabItem x:Name="DefinitionsTab" Header="Tanımlar">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="12">
+                                <TextBlock Text="Komut şablonlarındaki yer tutucular, burada seçtiğiniz değerlerle gönderimden önce değiştirilir. Yer tutucuyu saran tırnak işaretleri gönderilen komuttan kaldırılır." TextWrapping="Wrap" Foreground="#555555" Margin="0,2,0,14"/>
+                                <Border BorderBrush="#D0D0D0" BorderThickness="1" CornerRadius="7" Padding="9" Margin="0,0,0,14">
+                                    <StackPanel>
+                                        <TextBlock Text="Sistem bilgisi ara" FontWeight="SemiBold" Margin="0,0,0,7"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox x:Name="SystemSearchBox" Padding="7,5" VerticalContentAlignment="Center" ToolTip="Sistem adı veya satır içeriğinde ara" TextChanged="SystemSearchBox_TextChanged"/>
+                                            <Button Grid.Column="1" Content="Liste yükle" Style="{StaticResource QuietButton}" Padding="9,6" Margin="6,0,0,0" Click="LoadSystemList_Click"/>
+                                        </Grid>
+                                        <ListBox x:Name="SystemSearchResults" Height="92" Margin="0,7,0,4" SelectionChanged="SystemSearchResults_SelectionChanged"/>
+                                        <TextBlock x:Name="SystemListStatus" Text="Sistem listesi bekleniyor: defines\syslist.txt" FontSize="10" Foreground="#666666" TextWrapping="Wrap" Margin="0,0,0,7"/>
+                                        <TextBlock Text="Sistem / cihaz" FontSize="11" Foreground="#555555"/>
+                                        <ComboBox x:Name="SystemNameChoice" Style="{StaticResource Field}" Margin="0,3,0,7" SelectionChanged="SystemNameChoice_SelectionChanged"/>
+                                        <TextBlock Text="Sistem IP" FontSize="11" Foreground="#555555"/>
+                                        <ComboBox x:Name="SystemIpChoice" Style="{StaticResource Field}" Margin="0,3,0,7" SelectionChanged="SystemIpChoice_SelectionChanged"/>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="Gateway IP için blok sayısı" FontSize="11" Foreground="#555555" VerticalAlignment="Center"/>
+                                            <ComboBox x:Name="GatewayBlocksCombo" Width="58" Height="30" Margin="8,0,0,0" SelectionChanged="GatewayBlocksCombo_SelectionChanged">
+                                                <ComboBoxItem Content="1"/>
+                                                <ComboBoxItem Content="2"/>
+                                                <ComboBoxItem Content="3"/>
+                                                <ComboBoxItem Content="4"/>
+                                                <ComboBoxItem Content="5"/>
+                                                <ComboBoxItem Content="6"/>
+                                                <ComboBoxItem Content="7"/>
+                                                <ComboBoxItem Content="8"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock Text="Sistem IP" FontWeight="SemiBold"/>
+                                <Grid Margin="0,5,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="105"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="SystemIpTokenBox" Text="SYS_IP" ToolTip="Komut TXT dosyasında kullanılacak yer tutucu" Padding="7,5" VerticalContentAlignment="Center"/>
+                                    <TextBox x:Name="SystemIpValueBox" Grid.Column="1" ToolTip="Komutta kullanılacak sistem IP adresi" Padding="7,5" Margin="7,0,0,0" VerticalContentAlignment="Center" TextChanged="SystemIpValueBox_TextChanged"/>
+                                </Grid>
+                                <TextBlock Text="Gateway / Route IP" FontWeight="SemiBold"/>
+                                <Grid Margin="0,5,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="105"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="RouteIpTokenBox" Text="ROUTE_IP" ToolTip="Komut TXT dosyasında kullanılacak yer tutucu" Padding="7,5" VerticalContentAlignment="Center"/>
+                                    <TextBox x:Name="RouteIpValueBox" Grid.Column="1" ToolTip="Komutta kullanılacak gateway veya route IP adresi" Padding="7,5" Margin="7,0,0,0" VerticalContentAlignment="Center"/>
+                                </Grid>
+                                <Button Content="V2 tanım dosyası yükle (data.txt)" Style="{StaticResource QuietButton}" HorizontalAlignment="Stretch" Padding="10,8" Click="LoadDefinitions_Click"/>
+                                <TextBlock x:Name="DefinitionsFileStatus" Text="V2 data.txt bekleniyor: defines\data.txt" TextWrapping="Wrap" FontSize="11" Foreground="#666666" Margin="0,7,0,12"/>
+                                <Border Height="1" Background="#D0D0D0" Margin="0,0,0,10"/>
+                                <StackPanel x:Name="DynamicDefinitionsPanel"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                </TabControl>
+            </Border>
+        </Grid>
+        <Grid Grid.Row="2" Margin="2,14,2,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Serial Port V3  ·  Seri port bağlantı aracı" FontSize="11" Foreground="#666666"/>
+            <TextBlock Grid.Column="1" Text="UTF-8  ·  Windows" FontSize="11" Foreground="#666666"/>
+        </Grid>
+    </Grid>
+</Window>
